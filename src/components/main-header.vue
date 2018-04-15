@@ -1,15 +1,18 @@
 <template>
-  <div class="header">
-    <div class="header__body">
-      <h1 class="header__title">デザインクリップ</h1>
-      <a href="/auth/logout" class="header__link">ログアウト</a>
+<nav>
+  <div class="container">
+    <div class="nav-wrapper">
+      <a href="/" class="brand-logo">Logo</a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/auth/logout" class="header__link waves-effect waves-light">ログアウト</a></li>
+      </ul>
     </div>
   </div>
-
+</nav>
 </template>
 
 <style lang="scss">
-@import '../commonStyle/_reset';
+@import '../commonStyle/_common';
 body {
   color: #484848;
 }

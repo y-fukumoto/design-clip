@@ -20,6 +20,10 @@ const Design = loader.database.define('designs', {
     type: Sequelize.STRING,
     allowNull: false
   },
+  tags: {
+    type: Sequelize.INTEGER,
+    allowNull: true
+  },
   userid: {
     type: Sequelize.INTEGER
   }

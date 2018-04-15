@@ -12,9 +12,14 @@ var config = require('./config')
 //モデルの読み込みと定義を書く
 var User = require('./models/user')
 var Design = require('./models/design')
+var DesignTag = require('./models/designtag')
+var Tag = require('./models/tag')
 //
 User.sync().then(() => {
   Design.sync()
+  Tag.sync()
+  DesignTag.belongsTo(Tag, { foreignKey: 'tagId' })
+  DesignTag.sync()
 })
 
 passport.serializeUser(function(user, done) {

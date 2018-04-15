@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack')
 
 module.exports = {
   mode: 'development',
@@ -14,7 +15,8 @@ module.exports = {
   resolve: {
     alias: {
       vue: 'vue/dist/vue.esm.js',
-      vuex: 'vuex/dist/vuex.js'
+      vuex: 'vuex/dist/vuex.js',
+      jquery: path.join(__dirname, 'node_modules', 'jquery')
     }
   },
   module: {
@@ -50,6 +52,13 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery: "jquery",
+      "window.jQuery": "jquery"
+    })
+  ],
   devServer: {
     contentBase: path.join(__dirname, 'public'),
     port: 8080,

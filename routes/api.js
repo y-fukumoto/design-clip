@@ -6,10 +6,18 @@ const puppeteer = require('puppeteer')
 const crypto = require('crypto')
 const User = require('../models/user')
 const Design = require('../models/design')
+const DesignTag = require('../models/designtag')
+const Tag = require('../models/tag')
 const authenticationEnsurer = require('./authentication-ensurer')
 
 const imagePath = path.resolve("") + '/public/images/'
 
+/**
+ * @param id
+ * @type INTEGER
+ * @returns Object
+ * ユーザーIDからユーザーの保存したデザイン一覧をJSONで返す
+ */
 router.get('/designs', authenticationEnsurer, (req, res, next) => {
   User.findOne({
     where: {
@@ -18,22 +26,20 @@ router.get('/designs', authenticationEnsurer, (req, res, next) => {
   })
   .then((user) => {
     if(!user) {
-      return new Error('userじゃない')
+      const err = new Error('userじゃない');
+      err.status = 404;
+      next(err);
     }
-    Design.findAll({
-      where: {
-        userid: user.userid
-      }
-    })
-    .then((designs) => {
-      if(!designs) {
-        res.send({})
-      }
-      res.send(JSON.stringify(designs))
-    })
+    getAllDesign(user.userid, res, next)
   })
 })
 
+/**
+ * @param url
+ * @type STRING
+ * @returns Object
+ * 入力したurlのスクリーンショットを保存し、スクショの画像パスとサイトのタイトル、urlを返す
+ */
 router.post('/webshot', (req, res, next) => {
   const filename = require('crypto').randomBytes(8).toString('hex')
   
@@ -60,14 +66,26 @@ router.post('/webshot', (req, res, next) => {
   }
   
   imageUrl().then((page) => {
-    res.send({
-      image: page.filename,
-      title: page.pageTitle,
-      url: page.url
-    })
+    if(page) {
+      res.send({
+        image: page.filename,
+        title: page.pageTitle,
+        url: page.url
+      })
+    } else {
+      const err = new Error('指定されたURLがない、または通信エラーです');
+      err.status = 404;
+      next(err);
+    }
   })  
 })
 
+/**
+ * @param id,title,url,image
+ * @type Object
+ * @returns Object
+ * タイトル、url、画像パス、ユーザーidでデザインを作成＆保存しデザイン一覧を返す
+ */
 router.post('/savedesign', authenticationEnsurer, (req, res, next) => {
   User.findOne({
     where: {
@@ -81,14 +99,26 @@ router.post('/savedesign', authenticationEnsurer, (req, res, next) => {
       image: req.body.image,
       userid: user.userid
     })
-    .then(() => {
-      Design.findAll({
-        where: {
-          userid: user.userid
-        }
+    .then((design) => {
+      let tagsFunction = []
+      req.body.tags.forEach((tag) => {
+        tagsFunction.push(new Promise(function(resolve, reject) {
+          Tag.findOrCreate({
+            where: { body: tag }
+          })
+          .spread((tag, created) => {
+            DesignTag.create({
+              designId: design.id,
+              tagId: tag.id
+            })
+            .then(() => {
+              resolve()
+            })
+          })
+        }))
       })
-      .then((designs) => {
-        res.send(JSON.stringify(designs))
+      Promise.all(tagsFunction).then(() => {
+        getAllDesign(user.userid, res, next)
       })
     })
   })
@@ -115,17 +145,83 @@ router.post('/deletedesign', authenticationEnsurer, (req, res, next) => {
       return fs.unlink(imagePath + filename)
     })
     .then(() => {
-      Design.findAll({
-        where: {
-          userid: user.userid
-        }
-      })
-      .then((designs) => {
-        res.send(JSON.stringify(designs))
-      })
+      getAllDesign(user.userid, res, next)
     })
   })
 })
+
+router.post('/addtag', authenticationEnsurer, (req, res, next) => {
+  console.log(req.body.tag)
+  Tag.findOrCreate({
+    where: { body: req.body.tag }
+  }).spread((tag, created) => {
+    DesignTag.create({
+      designId: req.body.designId,
+      tagId: tag.id
+    })
+    .then(() => {
+      res.send(JSON.stringify(tag))
+    })
+  })
+})
+
+router.post('/deletetag/', authenticationEnsurer, (req, res, next) => {
+  Tag.findOne({
+    where: { id: req.body.tagId }
+  }).then((tag) => {
+    DesignTag.findOne({
+      where: {
+        designId: req.body.designId,
+        tagId: tag.id
+      }
+    })
+    .then((designTag) => {
+      designTag.destroy()
+      tag.destroy()
+    })
+    .then(() => {
+      res.send({message: '削除しました'})
+    })
+  })
+})
+
+getAllDesign = (userid, res, next) => {
+  Design.findAll({
+    where: {
+      userid: userid
+    }
+  })
+  .then((designs) => {
+    if(!designs) {
+      res.send({})
+    }
+    designsFunctions = []
+    designs.forEach((design) => {
+      designsFunctions.push(new Promise(function(designResolve, designReject) {
+        DesignTag.findAll({
+          include: [
+            {
+              model: Tag,
+              attributes: ['id', 'body']
+            }
+          ],
+          where: { designId: design.id }
+        })
+        .then((designTags) => {
+          let tags = []
+          designTags.forEach((tag) => {
+            tags.push(tag.tag)
+          })
+          design.tags = tags
+          designResolve()
+        })
+      }))
+    })
+    Promise.all(designsFunctions).then(() => {
+      res.send(JSON.stringify(designs))
+    })
+  })
+}
 
 
 
