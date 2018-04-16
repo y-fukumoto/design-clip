@@ -1,5 +1,9 @@
 const store = {
   state: {
+    error: {
+      status: false,
+      message: ''
+    },
     loading: false,
     result: false,
     designs: [],
@@ -10,6 +14,13 @@ const store = {
     },
     registeredTags: [],
     selectTag: []
+  },
+  setError: function(err) {
+    this.state.error.status = true,
+    this.state.error.message = err.message
+  },
+  resetError: function() {
+    this.state.error.status = false
   },
   setDesignData: function(data) {
     this.state.designs = data

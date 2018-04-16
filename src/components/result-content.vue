@@ -59,7 +59,7 @@ export default {
 <style scoped>
 .result {
   position: fixed;
-  background-color: rgba(255,255,255,.4);
+  background-color: #efefef;
   width: 100%;
   height: 100%;
   top: 0;
@@ -69,7 +69,7 @@ export default {
 
 .result__body {
   overflow-y: scroll;
-  width: 80%;
+  width: 950px;
   max-height: 100%;
   margin: 50px auto;
   background-color: white;
@@ -77,12 +77,13 @@ export default {
 
 .result__info {
   float: left;
-  width: 30%;
+  width: 400px;
+  margin-right: 50px;
 }
 
 .result__images {
   float: left;
-  width: 70%;
+  width: 500px;
 }
 
 .result__image {

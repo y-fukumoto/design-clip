@@ -3,7 +3,8 @@
     <div class="main__form form">
       <div class="form__body container">
         <input class="form__input" type="url" name="url" v-model="url" placeholder="ウェブサイトのURL" required @keyup.enter="getScreenshot">
-        <a href="javascript:void(0)" @click="getScreenshot" class="form__button btn red lighten-1">スクリーンショットを取得</a>
+        <a href="javascript:void(0)" @click="getScreenshot" class="form__button btn btn-flat red lighten-1">スクリーンショットを取得</a>
+        <span v-if="state.error.status" class="form__error">{{state.error.message}}</span>
       </div>
     </div>
     <div class="tags container">
@@ -67,10 +68,16 @@ export default {
       axios.post('/api/webshot',{url: this.url})
       .then((res) => {
         console.log(res)
+        store.resetError()
         store.setScrapingData(res.data)
         store.setResult(true)
         console.log(store.state)
         store.setLoading(false)
+      })
+      .catch((error) => {
+        console.log(error)
+        store.setLoading(false)
+        store.setError(error)
       })
     },
     selectTag: function(tag) {
@@ -96,14 +103,19 @@ export default {
 
 .form__input {
   padding-left: 5px;
+  border: none;
   background-color: white;
 }
 
 .form__button {
   position: absolute;
-  top: 5px;
+  top: 4px;
   right: 10px;
   color: white;
+}
+
+.form__error {
+  color: red;
 }
 
 .tags {
@@ -126,6 +138,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 10;
   background-color: rgba(255, 255, 255, .6)
 }
 </style>

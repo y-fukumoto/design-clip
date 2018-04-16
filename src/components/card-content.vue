@@ -13,7 +13,8 @@
             <span class="card-tag__label">{{tag.body}}</span>
             <i @click="deleteTag(design.id, tag.id)" class="material-icons tiny card-tag__icon">clear</i>
           </div>
-          <p class="result__input"><input type="text" v-model="editTag[index]"><a @click="editAddTag(design.id, index)">タグ追加</a></p>
+          <a @click="showTagInput(index)" class="card__add" v-if="!tagInput[index]">追加</a>
+          <p class="card__input card-input" v-if="tagInput[index]"><input type="text" v-model="editTag[index]" class="card-input__inpput"><a @click="editAddTag(design.id, index)">追加</a></p>
         </div>
         <div class="card-action">
           <a href="#">開く</a>
@@ -32,7 +33,8 @@ export default {
   data() {
     return {
       state: store.state,
-      editTag: []
+      editTag: [],
+      tagInput: {}
     }
   },
   computed: {
@@ -65,8 +67,11 @@ export default {
         this.$forceUpdate();
       })
     },
+    showTagInput: function(index) {
+      this.$set(this.tagInput, index, true)
+    },
     editAddTag: function(designId, index) {
-      console.log(this.editTag[index])
+      this.$set(this.tagInput, index, false)
       axios.post('/api/addtag', {
         designId: designId,
         tag: this.editTag[index]
@@ -128,6 +133,7 @@ export default {
 .card-tag {
   display: inline-block;
   margin-right: 5px;
+  margin-bottom: 4px;
   padding: 5px;
   background-color: #f5f5f5;
 }
@@ -142,4 +148,12 @@ export default {
   vertical-align: middle;
   cursor: pointer;
 }
+
+.card-input__inpput {
+  height: 18px;
+  line-height: 18px;
+  padding: 0 4px;
+  border: 1px solid #efefef;
+}
+
 </style>

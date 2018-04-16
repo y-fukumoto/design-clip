@@ -66,18 +66,15 @@ router.post('/webshot', (req, res, next) => {
   }
   
   imageUrl().then((page) => {
-    if(page) {
-      res.send({
-        image: page.filename,
-        title: page.pageTitle,
-        url: page.url
-      })
-    } else {
-      const err = new Error('指定されたURLがない、または通信エラーです');
-      err.status = 404;
-      next(err);
-    }
-  })  
+    res.send({
+      image: page.filename,
+      title: page.pageTitle,
+      url: page.url
+    })
+  }).catch((err) => {
+    //const err = new Error('指定されたURLがない、または通信エラーです');
+    res.status(404).send({error: err, message: '指定されたURLがない、または通信エラーです'});
+  })
 })
 
 /**
