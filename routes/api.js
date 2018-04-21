@@ -174,13 +174,27 @@ router.post('/deletetag/', authenticationEnsurer, (req, res, next) => {
     })
     .then((designTag) => {
       designTag.destroy()
-      tag.destroy()
     })
     .then(() => {
       res.send({message: '削除しました'})
     })
   })
 })
+
+router.post('/quitresult', authenticationEnsurer, (req, res, next) => [
+  new Promise((resolve, rejected) => {
+    fs.unlink(imagePath + req.body.image, (err) => {
+      if(err) {
+        rejected(err)
+      } else {
+        resolve()
+      }
+    })
+  })
+  .then(() => {
+    res.status(200).send({message: '削除しました'})
+  })    
+])
 
 getAllDesign = (userid, res, next) => {
   Design.findAll({

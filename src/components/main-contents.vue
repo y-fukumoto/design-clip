@@ -3,17 +3,18 @@
     <div class="main__form form">
       <div class="form__body container">
         <input class="form__input" type="url" name="url" v-model="url" placeholder="ウェブサイトのURL" required @keyup.enter="getScreenshot">
-        <a href="javascript:void(0)" @click="getScreenshot" class="form__button btn btn-flat red lighten-1">スクリーンショットを取得</a>
+        <a href="javascript:void(0)" @click="getScreenshot" class="form__button btn btn-flat red lighten-1"><i class="material-icons form__icon">camera_alt</i><span class="form__text">スクショ撮影</span></a>
         <span v-if="state.error.status" class="form__error">{{state.error.message}}</span>
       </div>
     </div>
     <div class="tags container">
-      <p class="tags__title">タグ一覧</p>
-      <div @click="selectTag(tag)" class="waves-effect waves-light btn-small" v-for="tag in filterAllTag" :key="tag.id">{{tag.body}}</div>
+      <p class="tags__title">タグで絞り込む</p>
+      <div @click="selectTag(tag)" class="waves-effect waves-light btn-flat btn-small grey lighten-4" :class="[tag.selected? 'tag--selected' : '']" v-for="tag in state.registeredTags" :key="tag.id">#{{tag.body}}</div>
     </div>
     <result-content v-if="state.result"></result-content>
     <card-content></card-content>
-    <div v-if="state.loading" class="loading"></div>
+    <loading v-if="state.loading"></loading>
+    <design v-if="state.showDesign.show"></design>
   </div>
 </template>
 
@@ -22,42 +23,26 @@ import axios from 'axios'
 import store from '../store'
 import resultContent from './result-content.vue'
 import cardContent from './card-content.vue'
+import loading from './loading.vue'
+import design from './design.vue'
 export default {
   data() {
     return {
       url: '',
       state: store.state,
       tags: [],
-      tag: '',
+      tag: ''
     }
   },
   components: {
     resultContent,
-    cardContent
-  },
-  computed: {
-    filterAllTag: function() {
-      let filteredTags = []
-      //比較用にJSON.stringfyをかけた配列を作る
-      let objectTags = []
-      this.state.registeredTags.forEach((tag) => {
-        objectTags.push(JSON.stringify(tag))
-      })
-      filteredTags = objectTags.filter((tag, index, self) => {
-        return self.indexOf(tag) === index
-      })
-      //dataに突っ込むときにJSON.parseして戻す
-      let parseTags = []
-      filteredTags.forEach((tag) => {
-        parseTags.push(JSON.parse(tag))
-      })
-      return parseTags
-    },
+    cardContent,
+    loading,
+    design
   },
   mounted: function() {
     axios.get('/api/designs')
     .then((res) => {
-      console.log("mounted2")
       store.setDesignData(res.data)
       store.setRegisteredTags(res.data)
     })
@@ -67,22 +52,21 @@ export default {
       store.setLoading(true)
       axios.post('/api/webshot',{url: this.url})
       .then((res) => {
-        console.log(res)
         store.resetError()
         store.setScrapingData(res.data)
         store.setResult(true)
-        console.log(store.state)
         store.setLoading(false)
+        this.url = ''
       })
       .catch((error) => {
-        console.log(error)
         store.setLoading(false)
         store.setError(error)
       })
     },
     selectTag: function(tag) {
-      console.log(tag)
+      tag.selected = !tag.selected
       store.addSelectTag(tag)
+      this.$forceUpdate()
     }
   }
 }
@@ -102,6 +86,7 @@ export default {
 }
 
 .form__input {
+  height: 44px;
   padding-left: 5px;
   border: none;
   background-color: white;
@@ -112,6 +97,17 @@ export default {
   top: 4px;
   right: 10px;
   color: white;
+}
+
+.form__icon {
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.form__text {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .form__error {
@@ -126,19 +122,19 @@ export default {
   margin-bottom: 5px;
 }
 
+.tag {
+  &:hover {
+    background-color: #bdbdbd;
+  }
+  &--selected {
+    background-color: #bdbdbd;
+  }
+}
+
 .list {
   width: 950px;
   overflow: hidden;
   margin: 0 auto;
 }
 
-.loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, .6)
-}
 </style>

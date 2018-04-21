@@ -7,7 +7,6 @@
   height: $button-height;
   line-height: $button-height;
   padding: $button-padding;
-  text-transform: uppercase;
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent; // Gets rid of tap active state
 }
@@ -72,7 +71,7 @@
   transition: background-color .2s ease-out;
   cursor: pointer;
   &:hover {
-    background-color: $button-raised-background-hover;
+    //background-color: $button-raised-background-hover;
     @extend .z-depth-1-half;
   }
 }

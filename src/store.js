@@ -13,7 +13,11 @@ const store = {
       image: '',
     },
     registeredTags: [],
-    selectTag: []
+    selectTag: [],
+    showDesign: {
+      show: false,
+      design: {}
+    }
   },
   setError: function(err) {
     this.state.error.status = true,
@@ -24,17 +28,15 @@ const store = {
   },
   setDesignData: function(data) {
     this.state.designs = data
+    this.setRegisteredTags(this.state.designs)
   },
   setResult: function(boolean) {
-    console.log(boolean)
     this.state.result = boolean
-    console.log(this.state.result)
   },
   setLoading: function(boolean) {
-    console.log(boolean)
     this.state.loading = boolean
-    console.log(this.state.result)
   },
+  //登録済のタグ一覧を重複を除き配列に設定
   setRegisteredTags: function(data) {
     let tags = []
     data.forEach((design) => {
@@ -42,21 +44,48 @@ const store = {
         tags.push(tag)
       })
     })
-    this.state.registeredTags = tags
+    let filteredTags = []
+    //比較用にJSON.stringfyをかけた配列を作る
+    let objectTags = []
+    tags.forEach((tag) => {
+      objectTags.push(JSON.stringify(tag))
+    })
+    filteredTags = objectTags.filter((tag, index, self) => {
+      return self.indexOf(tag) === index
+    })
+    //dataに突っ込むときにJSON.parseして戻す
+    let parseTags = []
+    filteredTags.forEach((tag) => {
+      parseTags.push(JSON.parse(tag))
+    })
+    this.state.registeredTags = parseTags
   },
   //登録済デザインにタグを追加
   addTagAtDesign: function(data, designId) {
-    const targetDesign = this.state.designs.find((design) => {
-      return design.id === designId
+    this.state.designs.forEach((design) => {
+      if (design.id === designId) {
+        design.tags.push({
+          id: data.id,
+          body: data.body
+        })
+      }
     })
-    targetDesign.tags.push(data)
+    this.setRegisteredTags(this.state.designs)
   },
-  addSelectTag: function(tag) {
-    this.state.selectTag.push(tag)
-  },
-  //登録済デザインのタグをタグ一覧に追加
-  addRegisteredTags: function(data) {
-    this.state.registeredTags.push(data)
+  addSelectTag: function(data) {
+    let isSelected = this.state.selectTag.find((tag) => {
+      return data.id === tag.id
+    })
+    if(isSelected) {
+      //すでに選択していたら非選択に
+      let selectedTags = this.state.selectTag.filter((tag) => {
+        return data.id != tag.id
+      })
+      this.state.selectTag = selectedTags;
+    } else {
+      //選択していなければ選択に
+      this.state.selectTag.push(data)
+    }
   },
   //取得したスクショなどの情報を保存
   setScrapingData: function(data) {
@@ -68,6 +97,13 @@ const store = {
     this.state.scrapingData.title = ''
     this.state.scrapingData.url = ''
     this.state.scrapingData.image = ''
+  },
+  setShowDesign: function(design) {
+    this.state.showDesign.design = design
+    this.state.showDesign.show = true
+  },
+  setCloseDesign: function() {
+    this.state.showDesign.show = false
   }
 }
 

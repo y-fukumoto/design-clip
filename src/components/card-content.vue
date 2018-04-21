@@ -1,28 +1,28 @@
 <template>
 <div class="row container">
-  <template v-for="(design, index) in orderedById">
-    <div class="col l4 m6 s12" :key="design.id">
-      <div class="card">
-        <div class="card-image">
+  <transition-group name="body" tag="div" class="cards" appear>
+    <template v-for="(design, index) in orderedById">
+      <div class="card" :key="design.id">
+        <div class="card-image" @click="showDesign(design)">
           <img :src="'/images/' + design.image" alt="" class="card__image">
           <div class="card-title"><a :href="design.url" class="card-url" target="_blank">{{design.title}}</a></div>
         </div>
         <div class="card-content">
           <p class="card__text">タグ</p>
           <div v-for="(tag, index) in design.tags" :key="index" class="card-tag">
-            <span class="card-tag__label">{{tag.body}}</span>
+            <span class="card-tag__label">#{{tag.body}}</span>
             <i @click="deleteTag(design.id, tag.id)" class="material-icons tiny card-tag__icon">clear</i>
           </div>
           <a @click="showTagInput(index)" class="card__add" v-if="!tagInput[index]">追加</a>
           <p class="card__input card-input" v-if="tagInput[index]"><input type="text" v-model="editTag[index]" class="card-input__inpput"><a @click="editAddTag(design.id, index)">追加</a></p>
         </div>
         <div class="card-action">
-          <a href="#">開く</a>
+          <a href="javascript:void(0);" @click="showDesign(design)">開く</a>
           <a href="javascript:void(0);" @click="deleteDesign(design.id)">削除する</a>
         </div>
       </div>
-    </div>
-  </template>
+    </template>
+  </transition-group>
 </div>
 </template>
 
@@ -43,18 +43,26 @@ export default {
       orderedList = this.state.designs.slice().sort((a, b) => {
         return (a.updatedAt < b.updatedAt ? 1 : -1)
       })
+      let testFunc = (array, id) => {
+        return array.some((item) => {
+          return item.id == id
+        })
+      }
       //TODO 選択したタグで絞込
       if(this.state.selectTag.length  > 0) {
-        let filteredList = []
+        let filteredList = new Set()
         this.state.selectTag.forEach((tag) => {
-
+          let matchList = orderedList.filter((design) => {
+            return testFunc(design.tags, tag.id)
+          })
+          matchList.forEach((match) => {
+            filteredList.add(match)
+          })
         })
-        filteredList = orderedList.filter((design) => {
-        })
-        return filteredList
+        return Array.from(filteredList.values())
       }
       return orderedList
-    }
+    },
   },
   methods: {
     deleteDesign: function(designId) {
@@ -62,7 +70,6 @@ export default {
         id: designId
       })
       .then((res) => {
-        console.log(res)
         store.setDesignData(res.data)
         this.$forceUpdate();
       })
@@ -71,16 +78,35 @@ export default {
       this.$set(this.tagInput, index, true)
     },
     editAddTag: function(designId, index) {
-      this.$set(this.tagInput, index, false)
-      axios.post('/api/addtag', {
-        designId: designId,
-        tag: this.editTag[index]
+      let exist = false
+      let input = this.editTag[index]
+      //空文字の場合は何もしない
+      if(!input) {
+        exist = true
+      }
+      const targetDesign = this.state.designs.find((design) => {
+        return design.id === designId
       })
-      .then((res) => {
-        store.addTagAtDesign(res.data, designId)
-        store.addRegisteredTags(res.data)
+      //すでにデザインに同じ文字のタグがあるかチェック
+      targetDesign.tags.forEach((tag, index) => {
+        if(tag.body === input) {
+          exist = true
+        }
+      })
+      if (!exist) {
+        this.$set(this.tagInput, index, false)
+        axios.post('/api/addtag', {
+          designId: designId,
+          tag: this.editTag[index]
+        })
+        .then((res) => {
+          store.addTagAtDesign(res.data, designId)
+          this.editTag[index] = ''
+        })
+      } else {
         this.editTag[index] = ''
-      })
+        this.$forceUpdate();
+      }
     },
     deleteTag: function(designId, tagId) {
       axios.post('/api/deletetag', {
@@ -96,21 +122,51 @@ export default {
             targetDesign.tags.splice(index, 1)
           }
         })
-        this.allTag.forEach((tag, index) => {
-          if(tag.id === tagId) {
-            this.allTag.splice(index, 1)
-          }
-        })
+        store.setRegisteredTags(this.state.designs)
       }) 
-    }    
+    },
+    showDesign: function(design) {
+      store.setShowDesign(design)
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+
+.body-enter-active {
+  transition: transform .3s, opacity .3s;
+}
+.body-leave-active {
+  transition: transform .5s, opacity .5s;
+}
+.body-move:not(.body-leave-active) {
+  transition: transform .3s;
+}
+/* 表示される時 */
+.body-enter {
+  opacity: 0;
+}
+/* 消える時 */
+.body-leave-to {
+  opacity: 0;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 290px;
+  min-width: 290px;
+  margin-right: 12px;
+}
+
 .card-image {
-  max-height: 300px;
+  height: 300px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .card__text {
@@ -122,7 +178,7 @@ export default {
   padding: 4px 16px;
   font-size: 14px;
   line-height: 1.2;
-  background-color: rgba(0,0,0,.4);
+  background-color: rgba(0,0,0,.5);
   box-sizing: border-box;
 }
 

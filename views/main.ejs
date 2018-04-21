@@ -6,11 +6,13 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
+    <%
+       var user = JSON.stringify(user);
+    %>
     <div id="app">
-      <main-header></main-header>
+      <main-header :user="<%= user %>"></main-header>
       <main-contents></main-contents>
     </div>
-    <p><%= user.displayName %>さん</p>
     <script src="/javascripts/app.bundle.js"></script>
   </body>
 </html>

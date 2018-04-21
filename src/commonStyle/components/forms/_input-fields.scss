@@ -29,13 +29,12 @@ textarea.materialize-textarea {
   //border-bottom: $input-border;
   border-radius: 0;
   outline: none;
-  height: $input-height;
   width: 100%;
   font-size: $input-font-size;
   margin: $input-margin;
   //padding: $input-padding;
   box-shadow: none;
-  box-sizing: content-box;
+  box-sizing: border-box;
   transition: box-shadow .3s, border .3s;
 
   // Disabled input style
