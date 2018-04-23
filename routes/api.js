@@ -51,7 +51,7 @@ router.post('/webshot', (req, res, next) => {
       width: 980,
       height: 600
     })
-    await page.goto(req.body.url, {waitUntil: 'networkidle',networkIdleTimeout:3000})
+    await page.goto(req.body.url)
     await page.screenshot({
       type: 'jpeg',
       path: imagePath + filename + '.jpeg',
