@@ -47,10 +47,12 @@ router.post('/webshot', (req, res, next) => {
     const browser = await puppeteer.launch()
     
     const page = await browser.newPage()
-    await page.goto(req.body.url)
-    await page.screenshot({
+    await page.setViewport({
       width: 980,
-      height: 600,
+      height: 600
+    })
+    await page.goto(req.body.url, {waitUntil: 'networkidle',networkIdleTimeout:3000})
+    await page.screenshot({
       type: 'jpeg',
       path: imagePath + filename + '.jpeg',
       fullPage: true,
