@@ -18,7 +18,7 @@
         </div>
         <div class="result-tag">
           <p class="result-tag__title">登録するタグ</p>
-          <p class="result-tag__tag" v-for="tag in tags" :key="tag.id">#{{tag}}</p>
+          <p class="result-tag__tag" v-for="tag in tags" :key="tag.id">{{tag}}</p>
       </div>
         <a href="javascript:void(0)" @click="saveDesign" class="result__save btn red lighten-1">保存する</a>
         <a href="javascript:void(0)" @click="quitResult" class="result__quit btn btn-flat grey lighten-5">やめる</a>

@@ -3,12 +3,13 @@
     <div class="design">
       <div class="design__header">
         <p class="design__title">{{state.showDesign.design.title}}</p>
-        <p class="design__url">{{state.showDesign.design.url}}</p>
+        <p class="design__url"><a :href="state.showDesign.design.url" target="_blank">{{state.showDesign.design.url}}</a></p>
       </div>
       <div class="design__body">
         <img :src="'images/' + state.showDesign.design.image" alt="" class="design__image">
       </div>
-      <a href="javascript:void(0)" @click="closeDesign()"><i class="material-icons medium design__close">close</i></a>
+      <div class="design__background" @click="closeDesign()"></div>
+      <a href="javascript:void(0)" @click="closeDesign()" class="design__close"><i class="material-icons medium">close</i></a>
     </div>
   </transition>
 </template>
@@ -23,24 +24,38 @@ export default {
       state: store.state
     }
   },
+  mounted: function() {
+    /*
+    const documentHeight = document.body.clientHeight
+    console.log(this.$el)
+    this.$el.querySelector('.design__background').style.height = documentHeight + 'px'
+    */
+    const headerHeight = document.querySelector('.design__header').clientHeight
+    const imgHeight = document.querySelector('.design__body').clientHeight
+    document.querySelector('.design__background').style.height = headerHeight + imgHeight + 'px'
+  },
   methods: {
     closeDesign: function() {
       store.setCloseDesign()
+    }/*,
+    loaded: function() {
+      const documentHeight = document.body.clientHeight
+      console.log(this.$el)
+      this.$el.querySelector('.design__background').style.height = documentHeight + 'px'
     }
+    */
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .design {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,.9);
   z-index: 2;
-  overflow-y: scroll;
   &-enter-active, &-leave-active {
     transition: opacity .3s, transform .3s;
   }
@@ -50,37 +65,32 @@ export default {
   }
 }
 
-.design__background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
 .design__header {
+  position: relative;
   width: 100%;
-  height: 80px;
-  padding: 20px 20px 0;
+  height: 56px;
+  padding: 10px 10px 0;
   background-color: white;
+  z-index: 3;
   box-sizing: border-box;
 }
 
 .design__body {
+  position: relative;
   width: 80%;
   margin: 0 auto;
-  padding: 50px;
+  padding: 20px;
   color: white;
   text-align: center;
+  z-index: 3;
 }
 
 .design__title {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   text-align: left;
 }
 
 .design__url {
-  margin-bottom: 10px;
   text-align: left;
 }
 
@@ -90,11 +100,20 @@ export default {
 }
 
 .design__close {
-  position: fixed;
-  top: 10px;
+  position: absolute;
+  top: 0px;
   right: 10px;
   color: #999999;
   font-weight: normal;
+  z-index: 3;
 }
 
+.design__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #efefef;
+}
 </style>

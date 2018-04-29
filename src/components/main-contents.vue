@@ -8,8 +8,8 @@
       </div>
     </div>
     <div class="tags container">
-      <p class="tags__title">タグで絞り込む</p>
-      <div @click="selectTag(tag)" class="waves-effect waves-light btn-flat btn-small grey lighten-4" :class="[tag.selected? 'tag--selected' : '']" v-for="tag in state.registeredTags" :key="tag.id">#{{tag.body}}</div>
+      <p class="tags__title">Tag</p>
+      <div @click="selectTag(tag)" class="waves-effect waves-light btn-flat btn-small grey lighten-4" :class="[tag.selected? 'tag--selected' : '']" v-for="tag in state.registeredTags" :key="tag.id">{{tag.body}}</div>
     </div>
     <result-content v-if="state.result"></result-content>
     <card-content></card-content>

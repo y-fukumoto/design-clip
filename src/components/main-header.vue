@@ -2,13 +2,10 @@
 <nav>
   <div class="container">
     <div class="nav-wrapper">
-      <a href="/" class="brand-logo">Logo</a>
+      <a href="/" class="brand-logo">Stock</a>
       <ul class="right hide-on-med-and-down">
-        <li><img :src="user.photos[0].value" class="header__icon"><span class="header__username">{{user.displayName}}</span></li>
-        <li class="header__menu">
-          <a href="javascript:void(0);" @click="showDropdown = !showDropdown" class="header__toggle">
-            <i class="material-icons">more_horiz</i>
-          </a>
+        <li class="header__user" @click="showDropdown = !showDropdown">
+          <img :src="user.photos[0].value" class="header__icon"><span class="header__username">{{user.displayName}}</span>
           <div v-if="showDropdown" class="header__dropdown header-dropdown">
             <a href="/auth/logout" class="header-dropdown__link">ログアウト</a>
           </div>
@@ -62,6 +59,10 @@ body {
 
 .header__title {
   display: inline-block;
+}
+
+.header__user {
+  cursor: pointer;
 }
 
 .header__icon {

@@ -8,13 +8,12 @@
           <div class="card-title"><a :href="design.url" class="card-url" target="_blank">{{design.title}}</a></div>
         </div>
         <div class="card-content">
-          <p class="card__text">タグ</p>
           <div v-for="(tag, index) in design.tags" :key="index" class="card-tag">
-            <span class="card-tag__label">#{{tag.body}}</span>
+            <span class="card-tag__label">{{tag.body}}</span>
             <i @click="deleteTag(design.id, tag.id)" class="material-icons tiny card-tag__icon">clear</i>
           </div>
-          <a @click="showTagInput(index)" class="card__add" v-if="!tagInput[index]">追加</a>
-          <p class="card__input card-input" v-if="tagInput[index]"><input type="text" v-model="editTag[index]" class="card-input__inpput"><a @click="editAddTag(design.id, index)">追加</a></p>
+          <a @click="showTagInput(index)" class="card__add" v-if="!tagInput[index]">Add Tag</a>
+          <p class="card__input card-input" v-if="tagInput[index]"><input type="text" v-model="editTag[index]" class="card-input__input"><a href="javascript:void(0);" @click="editAddTag(design.id, index)" class="card__add">Add</a></p>
         </div>
         <div class="card-action">
           <a href="javascript:void(0);" @click="showDesign(design)">開く</a>
@@ -77,7 +76,8 @@ export default {
     showTagInput: function(index) {
       this.$set(this.tagInput, index, true)
     },
-    editAddTag: function(designId, index) {
+    editAddTag: function(designId, index, event) {
+      console.log(event)
       let exist = false
       let input = this.editTag[index]
       //空文字の場合は何もしない
@@ -155,6 +155,7 @@ export default {
 .cards {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .card {
@@ -164,13 +165,18 @@ export default {
 }
 
 .card-image {
-  height: 300px;
+  height: 400px;
   overflow: hidden;
   cursor: pointer;
 }
 
 .card__text {
   margin-bottom: 5px;
+}
+
+.card__add {
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .card-title {
@@ -190,7 +196,9 @@ export default {
   display: inline-block;
   margin-right: 5px;
   margin-bottom: 4px;
-  padding: 5px;
+  padding: 2px;
+  font-size: 12px;
+  border-radius: 4px;
   background-color: #f5f5f5;
 }
 
@@ -205,11 +213,15 @@ export default {
   cursor: pointer;
 }
 
-.card-input__inpput {
-  height: 18px;
-  line-height: 18px;
+.card-input__input {
+  height: 28px;
+  line-height: 28px;
   padding: 0 4px;
   border: 1px solid #efefef;
+  transition: all .2s;
+  &:focus {
+    border: 1px solid #039be5;
+  }
 }
 
 </style>
