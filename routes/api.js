@@ -9,6 +9,7 @@ const Design = require('../models/design')
 const DesignTag = require('../models/designtag')
 const Tag = require('../models/tag')
 const authenticationEnsurer = require('./authentication-ensurer')
+const axios = require('axios')
 
 const imagePath = path.resolve("") + '/public/images/'
 
@@ -45,12 +46,30 @@ router.post('/webshot', (req, res, next) => {
   
   const imageUrl = async () => {
     const browser = await puppeteer.launch()
+    const device = req.body.device
+    let width, height, isMobile, userAgent
+    if (device === 'sp') {
+      userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+      width = 375
+      height = 667
+      isMobile = true
+    } else {
+      userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+      width = 980
+      height = 600
+      isMobile = false
+    }
+    console.log(device)
+    console.log(userAgent)
+    console.log(width)
+    
     
     const page = await browser.newPage()
     await page.setViewport({
-      width: 980,
-      height: 600
+      width: width,
+      height: height
     })
+    await page.setUserAgent(userAgent)
     await page.goto(req.body.url)
     await page.screenshot({
       type: 'jpeg',
@@ -75,6 +94,7 @@ router.post('/webshot', (req, res, next) => {
     })
   }).catch((err) => {
     //const err = new Error('指定されたURLがない、または通信エラーです');
+    console.log(err)
     res.status(404).send({error: err, message: '指定されたURLがない、または通信エラーです'});
   })
 })
@@ -86,6 +106,7 @@ router.post('/webshot', (req, res, next) => {
  * タイトル、url、画像パス、ユーザーidでデザインを作成＆保存しデザイン一覧を返す
  */
 router.post('/savedesign', authenticationEnsurer, (req, res, next) => {
+  //const account = req.user.emails[0].value.split('@')[0]
   User.findOne({
     where: {
       id: req.user.id

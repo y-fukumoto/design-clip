@@ -2,6 +2,16 @@
   <div class="main">
     <div class="main__form form">
       <div class="form__body container">
+        <div class="device">
+          <a @click="deviceDropdown = !deviceDropdown" class="device__state">
+            <i v-if="device === 'pc'"><i class="material-icons">desktop_mac</i></i>
+            <i v-if="device === 'sp'"><i class="material-icons">smartphone</i></i>
+          </a>
+          <div class="device__body" v-if="deviceDropdown">
+            <a @click="changeDevice('pc')" class="device__link"><i class="material-icons">desktop_mac</i></a>
+            <a @click="changeDevice('sp')" class="device__link"><i class="material-icons">smartphone</i></a>
+          </div>
+        </div>
         <input class="form__input" type="url" name="url" v-model="url" placeholder="ウェブサイトのURL" required @keyup.enter="getScreenshot">
         <a href="javascript:void(0)" @click="getScreenshot" class="form__button btn btn-flat red lighten-1"><i class="material-icons form__icon">camera_alt</i><span class="form__text">スクショ撮影</span></a>
         <span v-if="state.error.status" class="form__error">{{state.error.message}}</span>
@@ -31,7 +41,9 @@ export default {
       url: '',
       state: store.state,
       tags: [],
-      tag: ''
+      tag: '',
+      device: 'pc',
+      deviceDropdown: false
     }
   },
   components: {
@@ -50,7 +62,7 @@ export default {
   methods: {
     getScreenshot: function() {
       store.setLoading(true)
-      axios.post('/api/webshot',{url: this.url})
+      axios.post('/api/webshot',{url: this.url, device: this.device})
       .then((res) => {
         store.resetError()
         store.setScrapingData(res.data)
@@ -62,6 +74,10 @@ export default {
         store.setLoading(false)
         store.setError(error)
       })
+    },
+    changeDevice: function(device) {
+      this.device = device
+      this.deviceDropdown = !this.deviceDropdown
     },
     selectTag: function(tag) {
       tag.selected = !tag.selected
@@ -87,7 +103,8 @@ export default {
 
 .form__input {
   height: 44px;
-  padding-left: 5px;
+  margin-bottom: 0;
+  padding-left: 64px;
   border: none;
   background-color: white;
 }
@@ -112,6 +129,55 @@ export default {
 
 .form__error {
   color: red;
+}
+
+.device {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.device__body {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  width: 45px;
+  background-color: white;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.device__link {
+  display: block;
+  padding: 4px 0;
+  text-align: center;
+  color: #666666;
+  border-bottom: 1px solid #efefef;
+  cursor: pointer;
+}
+
+.device__state {
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 44px;
+  padding-left: 8px;
+  line-height: 56px;
+  color: #666666;
+  background-color: #f7f7f7;
+  cursor: pointer;
+  &:after {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    margin-top: -3px;
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 5px 0 5px;
+    border-color: #5c5c5c transparent transparent transparent;
+  }
 }
 
 .tags {

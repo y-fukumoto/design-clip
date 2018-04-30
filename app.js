@@ -92,7 +92,7 @@ app.use('/api', apiRouter);
 
 //auth router
 app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email', 'http://picasaweb.google.com/data/'] })
 )
 
 app.get('/auth/google/callback',

@@ -6,7 +6,7 @@
         <p class="design__url"><a :href="state.showDesign.design.url" target="_blank">{{state.showDesign.design.url}}</a></p>
       </div>
       <div class="design__body">
-        <img :src="'images/' + state.showDesign.design.image" alt="" class="design__image">
+        <img :src="'images/' + state.showDesign.design.image" @load="loaded()" alt="" class="design__image">
       </div>
       <div class="design__background" @click="closeDesign()"></div>
       <a href="javascript:void(0)" @click="closeDesign()" class="design__close"><i class="material-icons medium">close</i></a>
@@ -25,25 +25,18 @@ export default {
     }
   },
   mounted: function() {
-    /*
-    const documentHeight = document.body.clientHeight
-    console.log(this.$el)
-    this.$el.querySelector('.design__background').style.height = documentHeight + 'px'
-    */
-    const headerHeight = document.querySelector('.design__header').clientHeight
-    const imgHeight = document.querySelector('.design__body').clientHeight
-    document.querySelector('.design__background').style.height = headerHeight + imgHeight + 'px'
   },
   methods: {
     closeDesign: function() {
       store.setCloseDesign()
-    }/*,
+    },
     loaded: function() {
-      const documentHeight = document.body.clientHeight
-      console.log(this.$el)
-      this.$el.querySelector('.design__background').style.height = documentHeight + 'px'
+      const headerHeight = document.querySelector('.design__header').clientHeight
+      const imgHeight = document.querySelector('.design__body').clientHeight
+      console.log(headerHeight)
+      console.log(imgHeight)
+      document.querySelector('.design__background').style.height = headerHeight + imgHeight + 'px'
     }
-    */
   }
 }
 </script>
