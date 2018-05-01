@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs')
 const path = require('path')
+const request = require('request')
 const puppeteer = require('puppeteer')
 const crypto = require('crypto')
 const User = require('../models/user')
@@ -59,10 +60,6 @@ router.post('/webshot', (req, res, next) => {
       height = 600
       isMobile = false
     }
-    console.log(device)
-    console.log(userAgent)
-    console.log(width)
-    
     
     const page = await browser.newPage()
     await page.setViewport({
@@ -87,6 +84,12 @@ router.post('/webshot', (req, res, next) => {
   }
   
   imageUrl().then((page) => {
+    //TODO accessTokenをここに持ってくる方法を考える（cookieでいいかな）
+    let headers = {
+      'Content-Type':'multipart/related'
+    }
+    let image = fs.readFileSync(imagePath + page.filename)
+
     res.send({
       image: page.filename,
       title: page.pageTitle,
