@@ -11,7 +11,8 @@ const User = loader.database.define('users', {
   id: {
     type: Sequelize.TEXT,
     primaryKey: true,
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
   email: {
     type: Sequelize.STRING,
@@ -23,6 +24,10 @@ const User = loader.database.define('users', {
   },
   username: {
     type: Sequelize.STRING,
+    allowNull: false
+  },
+  token: {
+    type: Sequelize.TEXT,
     allowNull: false
   }
 }, {

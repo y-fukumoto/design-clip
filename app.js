@@ -47,18 +47,14 @@ passport.use(new GoogleStrategy({
         }
       })
       .then((u) => {
-        if(u) {
-          done(null, profile)
-        } else {
-          User.upsert({
-            id: profile.id,
-            email: profile.emails[0].value,
-            username: profile.displayName
-          })
-          .then(() => {
-            done(null, profile);
-          });
-        }
+        User.upsert({
+          id: profile.id,
+          email: profile.emails[0].value,
+          username: profile.displayName
+        })
+        .then(() => {
+          done(null, profile);
+        });
       })
     })
   }
