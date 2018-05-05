@@ -4,10 +4,10 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res, next) {
   if(req.user) {
-    res.render('main', { title: 'ログイン', user: req.user });
+    res.render('main', { title: 'Stock', user: req.user });
   }
   else {
-    res.render('index', { title: '未ログイン', user: '' });
+    res.render('index', { title: 'Stock', user: '' });
   }
 });
 
