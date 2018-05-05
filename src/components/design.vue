@@ -6,7 +6,7 @@
         <p class="design__url"><a :href="state.showDesign.design.url" target="_blank">{{state.showDesign.design.url}}</a></p>
       </div>
       <div class="design__body">
-        <img :src="'images/' + state.showDesign.design.image" @load="loaded()" alt="" class="design__image">
+        <img :src="'http://drive.google.com/uc?export=view&id=' + state.showDesign.design.image" @load="loaded()" alt="" class="design__image">
       </div>
       <div class="design__background" @click="closeDesign()"></div>
       <a href="javascript:void(0)" @click="closeDesign()" class="design__close"><i class="material-icons medium">close</i></a>

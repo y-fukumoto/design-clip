@@ -50,7 +50,8 @@ passport.use(new GoogleStrategy({
         User.upsert({
           id: profile.id,
           email: profile.emails[0].value,
-          username: profile.displayName
+          username: profile.displayName,
+          token: accessToken
         })
         .then(() => {
           done(null, profile);
@@ -88,7 +89,7 @@ app.use('/api', apiRouter);
 
 //auth router
 app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email', 'http://picasaweb.google.com/data/'] })
+  passport.authenticate('google', { scope: ['profile', 'email', 'https://www.googleapis.com/auth/drive'] })
 )
 
 app.get('/auth/google/callback',

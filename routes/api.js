@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs')
 const path = require('path')
-const request = require('request')
+const request = require('request-promise')
 const puppeteer = require('puppeteer')
 const crypto = require('crypto')
+const {oAuth2Client} = require('./oAuth2Client')
+const {google} = require('./oAuth2Client')
 const User = require('../models/user')
 const Design = require('../models/design')
 const DesignTag = require('../models/designtag')
@@ -13,6 +15,7 @@ const authenticationEnsurer = require('./authentication-ensurer')
 const axios = require('axios')
 
 const imagePath = path.resolve("") + '/public/images/'
+
 
 /**
  * @param id
@@ -72,7 +75,7 @@ router.post('/webshot', (req, res, next) => {
       type: 'jpeg',
       path: imagePath + filename + '.jpeg',
       fullPage: true,
-      quality: 65
+      quality: 100
     })
     const pageTitle = await page.title()
     await browser.close()
@@ -84,20 +87,86 @@ router.post('/webshot', (req, res, next) => {
   }
   
   imageUrl().then((page) => {
-    //TODO accessTokenをここに持ってくる方法を考える（cookieでいいかな）
-    let headers = {
-      'Content-Type':'multipart/related'
-    }
-    let image = fs.readFileSync(imagePath + page.filename)
+    User.findOne({
+      where: {
+        id: req.user.id
+      }
+    })
+    .then((user) => {
+      const image =  fs.createReadStream(imagePath + page.filename)
 
-    res.send({
-      image: page.filename,
-      title: page.pageTitle,
-      url: page.url
+      oAuth2Client.setCredentials({access_token: user.token})
+      const drive = google.drive({version: 'v3', auth: oAuth2Client})
+
+      //フォルダがあるか確認
+      drive.files.list({
+        q: "mimeType='application/vnd.google-apps.folder'" +  " and name='" + "Stock" + "'",
+        spaces: 'drive',
+        fields: 'files(id, name)'
+      }, function(err, res) {
+        if (err) {
+          // Handle error
+          res.status(404).send({error: err, message: 'Google Driveのフォルダの検索に失敗しました。'});
+        } else {
+          if(res.data.files.length) {
+            //フォルダが存在する場合
+            uploadFile(res.data.files[0].id)
+          } else {
+            //フォルダを作成
+            createFolder()
+          }
+        }
+      })
+
+      function createFolder () {
+        const fileMetadata = {
+          'name': 'Stock',
+          'mimeType': 'application/vnd.google-apps.folder'
+        };
+        drive.files.create({
+          resource: fileMetadata,
+          fields: 'id'
+        }, function (err, file) {
+          if (err) {
+            // Handle error
+            res.status(404).send({error: err, message: 'Google Driveへのフォルダの作成が失敗しました。'});
+          } else {
+            uploadFile(file.id)
+          }
+        });
+      }
+
+      function uploadFile(folderId) {
+        const fileMetadata = {
+          'name': filename,
+          'parents': [folderId]
+        };
+        drive.files.create({
+          resource: fileMetadata,
+          media: {
+            mimeType: 'image/jpeg',
+            body: image
+          },
+          fields: 'id'
+        }, function(err, file) {
+          if (err) {
+            // Handle error
+            res.status(404).send({error: err, message: 'Google Driveへのアップローでエラーが発生しました。容量が上限の場合は保存が行なえません'});
+          } else {
+            fs.unlinkSync(imagePath + filename + '.jpeg')
+            res.send({
+              image: file.data.id,
+              title: page.pageTitle,
+              url: page.url
+            })
+          }
+        })
+      }
+
+
     })
   }).catch((err) => {
     //const err = new Error('指定されたURLがない、または通信エラーです');
-    console.log(err)
     res.status(404).send({error: err, message: '指定されたURLがない、または通信エラーです'});
   })
 })
@@ -165,16 +234,23 @@ router.post('/deletedesign', authenticationEnsurer, (req, res, next) => {
       return design.destroy()
     })
     .then(() => {
-      return fs.unlink(imagePath + filename)
-    })
-    .then(() => {
-      getAllDesign(user.userid, res, next)
+      /*return fs.unlink(imagePath + filename)*/
+      const options = {
+        method: 'DELETE',
+        uri: 'https://www.googleapis.com/drive/v3/files/' + filename,
+        headers: {
+          'Authorization': 'Bearer' + ' ' + user.token,
+        }
+      }
+      request(options)
+      .then((body) => {
+        getAllDesign(user.userid, res, next)
+      })
     })
   })
 })
 
 router.post('/addtag', authenticationEnsurer, (req, res, next) => {
-  console.log(req.body.tag)
   Tag.findOrCreate({
     where: { body: req.body.tag }
   }).spread((tag, created) => {
@@ -207,20 +283,29 @@ router.post('/deletetag/', authenticationEnsurer, (req, res, next) => {
   })
 })
 
-router.post('/quitresult', authenticationEnsurer, (req, res, next) => [
-  new Promise((resolve, rejected) => {
-    fs.unlink(imagePath + req.body.image, (err) => {
-      if(err) {
-        rejected(err)
-      } else {
-        resolve()
+router.post('/quitresult', authenticationEnsurer, (req, res, next) => {
+  User.findOne({
+    where: {
+      id: req.user.id
+    }
+  })
+  .then((user) => {
+    const options = {
+      method: 'DELETE',
+      uri: 'https://www.googleapis.com/drive/v3/files/' + req.body.image,
+      headers: {
+        'Authorization': 'Bearer' + ' ' + user.token,
       }
+    }
+    request(options)
+    .then((body) => {
+      res.status(200).send({message: '削除しました'})
+    })
+    .catch((err) => {
+      res.status(400).send({message: 'Google Driveのファイルの削除に失敗しました'})
     })
   })
-  .then(() => {
-    res.status(200).send({message: '削除しました'})
-  })    
-])
+})
 
 getAllDesign = (userid, res, next) => {
   Design.findAll({

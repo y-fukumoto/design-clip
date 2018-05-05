@@ -64,6 +64,7 @@ export default {
       store.setLoading(true)
       axios.post('/api/webshot',{url: this.url, device: this.device})
       .then((res) => {
+        console.log(res.data)
         store.resetError()
         store.setScrapingData(res.data)
         store.setResult(true)
