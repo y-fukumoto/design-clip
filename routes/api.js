@@ -67,7 +67,8 @@ router.post('/webshot', (req, res, next) => {
     const page = await browser.newPage()
     await page.setViewport({
       width: width,
-      height: height
+      height: height,
+      deviceScaleFactor: 2
     })
     await page.setUserAgent(userAgent)
     await page.goto(req.body.url)
