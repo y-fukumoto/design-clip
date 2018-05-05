@@ -156,12 +156,12 @@ router.post('/webshot', (req, res, next) => {
             // Handle error
             res.status(404).send({error: err, message: 'Google Driveへのアップローでエラーが発生しました。容量が上限の場合は保存が行なえません'});
           } else {
-            fs.unlinkSync(imagePath + filename + '.jpeg')
             res.send({
               image: file.data.id,
               title: page.pageTitle,
               url: page.url
             })
+            fs.unlinkSync(imagePath + filename + '.jpeg')
           }
         })
       }

@@ -2,7 +2,7 @@
   <div class="result">
     <div class="result__body">
       <div class="result__images">
-        <img :src="'http://drive.google.com/uc?export=view&id=' + state.scrapingData.image" alt="" class="result__image">
+        <img :src="'https://drive.google.com/uc?export=view&id=' + state.scrapingData.image" alt="" class="result__image">
       </div>
       <div class="result__info">
         <h2 class="result__title">ウェブサイトの情報</h2>

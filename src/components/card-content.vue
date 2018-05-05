@@ -4,7 +4,7 @@
     <template v-for="(design, index) in orderedById">
       <div class="card" :key="design.id">
         <div class="card-image" @click="showDesign(design)">
-          <img :src="'http://drive.google.com/uc?export=view&id=' + design.image" alt="" class="card__image">
+          <img :src="'https://drive.google.com/uc?export=view&id=' + design.image" alt="" class="card__image">
           <div class="card-title"><a :href="design.url" class="card-url" target="_blank">{{design.title}}</a></div>
         </div>
         <div class="card-content">
