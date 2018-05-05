@@ -56,11 +56,13 @@ router.post('/webshot', (req, res, next) => {
       userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
       width = 375
       height = 667
+      deviceScaleFactor = 1.2
       isMobile = true
     } else {
       userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
       width = 980
       height = 600
+      deviceScaleFactor = 1.2
       isMobile = false
     }
     
@@ -68,7 +70,7 @@ router.post('/webshot', (req, res, next) => {
     await page.setViewport({
       width: width,
       height: height,
-      deviceScaleFactor: 2
+      deviceScaleFactor: deviceScaleFactor
     })
     await page.setUserAgent(userAgent)
     await page.goto(req.body.url)
