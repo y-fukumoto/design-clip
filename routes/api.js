@@ -76,7 +76,7 @@ router.post('/webshot', (req, res, next) => {
       type: 'jpeg',
       path: imagePath + filename + '.jpeg',
       fullPage: true,
-      quality: 100
+      quality: 90
     })
     const pageTitle = await page.title()
     await browser.close()
