@@ -73,13 +73,32 @@ router.post('/webshot', (req, res, next) => {
       deviceScaleFactor: deviceScaleFactor
     })
     await page.setUserAgent(userAgent)
-    await page.goto(req.body.url)
-    await page.screenshot({
+    await page.goto(req.body.url, { waitUntil: 'networkidle2' })
+    const pageSize = await page.evaluate(() => {
+      const body = document.querySelector('body')
+      const width = body.clientWidth
+      const height = body.clientHeight
+      return { width, height }
+    })
+    let options = {
       type: 'jpeg',
       path: imagePath + filename + '.jpeg',
-      fullPage: true,
-      quality: 90
-    })
+      quality: 100
+    }
+    console.log(pageSize)
+    if(pageSize.height > 13500) {
+      options.fullPage = false
+      options.clip = {
+        x: 0,
+        y: 0,
+        width: pageSize.width,
+        height: pageSize.height
+      }
+    } else {
+      options.fullPage = true
+    }
+    console.log(options)
+    await page.screenshot(options)
     const pageTitle = await page.title()
     await browser.close()
     return {
@@ -161,7 +180,7 @@ router.post('/webshot', (req, res, next) => {
               title: page.pageTitle,
               url: page.url
             })
-            fs.unlinkSync(imagePath + filename + '.jpeg')
+            fs.unlinkSync(imagePath + page.filename)
           }
         })
       }
