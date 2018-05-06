@@ -31,7 +31,9 @@
     "request": "^2.85.0",
     "request-promise": "^4.2.2",
     "sequelize": "^4.37.6",
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "vue-analytics": "^5.10.4",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "babel-loader": "^7.1.4",

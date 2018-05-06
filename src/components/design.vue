@@ -2,14 +2,14 @@
   <transition name="design">
     <div class="design">
       <div class="design__header">
-        <p class="design__title">{{state.showDesign.design.title}}</p>
-        <p class="design__url"><a :href="state.showDesign.design.url" target="_blank">{{state.showDesign.design.url}}</a></p>
+        <p class="design__title">{{design.title}}</p>
+        <p class="design__url"><a :href="design.url" target="_blank">{{design.url}}</a></p>
       </div>
       <div class="design__body">
-        <img :src="'https://drive.google.com/uc?export=view&id=' + state.showDesign.design.image" @load="loaded()" alt="" class="design__image">
+        <img :src="'https://drive.google.com/uc?export=view&id=' + design.image" @load="loaded()" alt="" class="design__image">
       </div>
-      <div class="design__background" @click="closeDesign()"></div>
-      <a href="javascript:void(0)" @click="closeDesign()" class="design__close"><i class="material-icons medium">close</i></a>
+      <router-link to="/" class="design__background"></router-link>
+      <router-link to="/" class="design__close"><i class="material-icons medium">close</i></router-link>
     </div>
   </transition>
 </template>
@@ -21,10 +21,15 @@ import store from '../store'
 export default {
   data() {
     return {
-      state: store.state
+      state: store.state,
+      design: {}
     }
   },
   mounted: function() {
+    const design = this.state.designs.filter((design) => {
+      return design.image == this.$route.params.id
+    })
+    this.design = design[0]
   },
   methods: {
     closeDesign: function() {
@@ -33,8 +38,6 @@ export default {
     loaded: function() {
       const headerHeight = document.querySelector('.design__header').clientHeight
       const imgHeight = document.querySelector('.design__body').clientHeight
-      console.log(headerHeight)
-      console.log(imgHeight)
       document.querySelector('.design__background').style.height = headerHeight + imgHeight + 'px'
     }
   }

@@ -24,7 +24,7 @@
     <result-content v-if="state.result"></result-content>
     <card-content></card-content>
     <loading v-if="state.loading"></loading>
-    <design v-if="state.showDesign.show"></design>
+    <!--<design v-if="state.showDesign.show"></design>-->
   </div>
 </template>
 
@@ -53,11 +53,6 @@ export default {
     design
   },
   mounted: function() {
-    axios.get('/api/designs')
-    .then((res) => {
-      store.setDesignData(res.data)
-      store.setRegisteredTags(res.data)
-    })
   },
   methods: {
     getScreenshot: function() {

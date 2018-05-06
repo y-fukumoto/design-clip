@@ -1,19 +1,22 @@
-const Foo = {
-  template: '<div>/</div>'
-}
+import mainContents from '../components/main-contents.vue'
+import designView from '../components/design.vue'
 
-const Bar = {
-  template: '<div>/foo</div>'
+const a = {
+  template: '<div>a</div>'
 }
 
 const routes = [
   {
-    path: '/foo',
-    component: Foo
+    path: '/',
+    component: mainContents
   },
   {
-    path: '/bar',
-    component: Bar
+    path: '/aa',
+    component: a
+  },
+  {
+    path: '/design/:id',
+    component: designView
   },
 ]
 
