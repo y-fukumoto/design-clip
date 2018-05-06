@@ -126,7 +126,9 @@ export default {
       }) 
     },
     showDesign: function(design) {
-      store.setShowDesign(design)
+      this.$router.push({
+        path: `/design/${design.image}`
+      })
     }
   }
 }
