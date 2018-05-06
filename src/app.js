@@ -14,7 +14,8 @@ const router = new VueRouter({
 });
 Vue.use(VueRouter);
 Vue.use(VueAnalytics, {
-  id: 'UA-49863180-2'
+  id: 'UA-49863180-2',
+  router
 })
 
 const getData = async () => {
