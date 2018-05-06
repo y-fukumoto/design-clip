@@ -92,7 +92,7 @@ router.post('/webshot', (req, res, next) => {
         x: 0,
         y: 0,
         width: pageSize.width,
-        height: pageSize.height
+        height: 13500
       }
     } else {
       options.fullPage = true
