@@ -130,7 +130,7 @@ router.post('/webshot', (req, res, next) => {
           // Handle error
           res.status(404).send({error: err, message: 'Google Driveのフォルダの検索に失敗しました。'});
         } else {
-          if(res.data.files.length) {
+          if(response.data.files.length) {
             //フォルダが存在する場合
             uploadFile(response.data.files[0].id)
           } else {
