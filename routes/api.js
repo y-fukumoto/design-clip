@@ -125,14 +125,14 @@ router.post('/webshot', (req, res, next) => {
         q: "mimeType='application/vnd.google-apps.folder'" +  " and name='" + "Stock" + "'",
         spaces: 'drive',
         fields: 'files(id, name)'
-      }, function(err, res) {
+      }, function(err, response) {
         if (err) {
           // Handle error
           res.status(404).send({error: err, message: 'Google Driveのフォルダの検索に失敗しました。'});
         } else {
           if(res.data.files.length) {
             //フォルダが存在する場合
-            uploadFile(res.data.files[0].id)
+            uploadFile(response.data.files[0].id)
           } else {
             //フォルダを作成
             createFolder()
