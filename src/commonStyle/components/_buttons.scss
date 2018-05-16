@@ -55,9 +55,6 @@
 // Shared focus button style
 .btn,
 .btn-floating {
-  &:focus {
-    background-color: darken($button-raised-background, 10%);
-  }
 }
 
 // Raised Button
@@ -279,9 +276,6 @@ button.btn-floating {
   &:focus,
   &:hover {
     box-shadow: none;
-  }
-  &:focus {
-    background-color: rgba(0, 0, 0, .1);
   }
   &.disabled {
     background-color: transparent !important;
