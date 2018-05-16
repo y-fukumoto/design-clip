@@ -4,7 +4,7 @@
     <div class="nav-wrapper">
       <a href="/" class="brand-logo">Stock</a>
       <ul class="right hide-on-med-and-down">
-        <li class="header__user" @click="showDropdown = !showDropdown">
+        <li class="header__user" @click="showDropdown = !showDropdown" v-if="user">
           <img :src="user.photos[0].value" class="header__icon"><span class="header__username">{{user.displayName}}</span>
           <div v-if="showDropdown" class="header__dropdown header-dropdown">
             <a href="/auth/logout" class="header-dropdown__link">ログアウト</a>
